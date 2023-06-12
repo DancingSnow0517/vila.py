@@ -5,14 +5,20 @@ from typing import TYPE_CHECKING, Dict, Type, List, Callable, Coroutine, Any
 import inspect
 
 if TYPE_CHECKING:
-    from ..bot import VilaBot
+    from ..vila_bot import VilaBot
 
 HANDLE_TYPE = Callable[['Event'], Coroutine[Any, Any, None]]
 log = logging.getLogger(__name__)
 
 
 class Event(ABC):
-    pass
+
+    def __init__(self, raw: dict) -> None:
+        self._raw = raw
+
+    @property
+    def raw(self):
+        return self._raw
 
 
 class EventManager:
@@ -25,7 +31,10 @@ class EventManager:
 
     async def post(self, event: Event):
         for handle in self.event_handles.get(event.__class__, []):
-            await handle(event)
+            try:
+                await handle(event)
+            except Exception as e:
+                log.exception('Event handle %s error.', handle.__name__, exc_info=e)
 
     def subscribe(self, name: str, handle: HANDLE_TYPE):
 
@@ -54,4 +63,3 @@ class EventManager:
                 continue
             if inspect.isfunction(handle):
                 self.subscribe(name, handle)
-

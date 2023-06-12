@@ -1,0 +1,11 @@
+# Configure file for Vila.py
+
+# =========================================
+# |            Basic Configure            |
+# =========================================
+
+# Vila Bot id here
+bot_id: ''
+
+# Vila Bot secret here
+bot_secret: ''
